@@ -120,12 +120,39 @@ def scale_features(
     return x_train_scaled, x_test_scaled, scaler
 
 
+def encode_target(target: pd.Series) -> pd.Series:
+    return target.map({0: -1, 1: 1})
+
+
+def get_prepared_data():
+    dataset = load_dataset()
+    dataset = convert_numeric_columns(dataset)
+    validate_data(dataset)
+
+    x_train, x_test, y_train, y_test = split_dataset(dataset)
+
+    y_train = encode_target(y_train)
+    y_test = encode_target(y_test)
+
+    x_train, x_test, scaler = scale_features(x_train, x_test)
+
+    return (
+        x_train.to_numpy(dtype=np.float64),
+        x_test.to_numpy(dtype=np.float64),
+        y_train.to_numpy(dtype=np.float64),
+        y_test.to_numpy(dtype=np.float64),
+        scaler,
+    )
+
+
 def main() -> None:
     dataset = load_dataset()
     dataset = convert_numeric_columns(dataset)
     validate_data(dataset)
 
     x_train, x_test, y_train, y_test = split_dataset(dataset)
+    y_train = encode_target(y_train)
+    y_test = encode_target(y_test)
 
     x_train_scaled, x_test_scaled, scaler = scale_features(x_train, x_test)
 
@@ -136,6 +163,8 @@ def main() -> None:
     print(f"Training labels: {y_train.shape}")
     print(f"Testing labels: {y_test.shape}")
     print(f"Classes: {sorted(dataset[TARGET_NAME].unique())}")
+    print(f"Encoded training classes: {sorted(y_train.unique())}")
+    print(f"Encoded testing classes: {sorted(y_test.unique())}")
     print("\nFirst three standardized training samples:")
     print(x_train_scaled.head(3))
 
