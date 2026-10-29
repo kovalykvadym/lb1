@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+
+# IDE
+.idea/
+
+# Test and coverage caches
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Generated experiment results
+results/
+
+# Local environment variables
+.env
