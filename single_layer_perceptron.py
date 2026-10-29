@@ -1,5 +1,6 @@
 import time
 
+import matplotlib.pyplot as plt
 import numpy as np
 from numpy.typing import NDArray
 
@@ -115,3 +116,10 @@ if __name__ == "__main__":
     print("\nTesting results:")
     print(f"Correct predictions: {correct} / {len(y_test)}")
     print(f"Classification accuracy: {accuracy:.2f}%")
+
+    plt.plot(range(1, epochs + 1), loss_history)
+    plt.xlabel("Epochs")
+    plt.ylabel("Average loss")
+    plt.title(f"Training loss (learning rate = {learning_rate})")
+    plt.grid()
+    plt.show()
