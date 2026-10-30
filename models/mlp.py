@@ -1,10 +1,5 @@
-import time
-
 import numpy as np
-from matplotlib import pyplot as plt
 from numpy.typing import NDArray
-
-from prepare_data import get_prepared_data
 
 
 def activation(values: NDArray[np.float64]) -> NDArray[np.float64]:
@@ -29,19 +24,19 @@ def initialize_parameters() -> tuple[
 
 
 def predict(
-    sample_features: NDArray[np.float64],
+    features: NDArray[np.float64],
     hidden_weights: NDArray[np.float64],
     hidden_bias: NDArray[np.float64],
     output_weights: NDArray[np.float64],
     output_bias: NDArray[np.float64],
-) -> float:
-    hidden_input = sample_features @ hidden_weights + hidden_bias
+) -> NDArray[np.float64]:
+    hidden_input = features @ hidden_weights + hidden_bias
     hidden_activation = activation(hidden_input)
 
     output_input = hidden_activation @ output_weights + output_bias
-    prediction = activation(output_input)
+    predictions = activation(output_input)
 
-    return float(prediction[0])
+    return predictions.ravel()
 
 
 def train_one_sample(
@@ -122,58 +117,3 @@ def train(
         loss_history.append(average_epoch_loss)
 
     return hidden_weights, hidden_bias, output_weights, output_bias, loss_history
-
-
-def main() -> None:
-    features_train, features_test, targets_train, targets_test, _ = get_prepared_data()
-
-    learning_rate = 0.01
-    num_epochs = 20
-
-    start_time = time.perf_counter()
-
-    hidden_weights, hidden_bias, output_weights, output_bias, loss_history = train(
-        features_train,
-        targets_train,
-        learning_rate=learning_rate,
-        num_epochs=num_epochs,
-    )
-
-    training_time = time.perf_counter() - start_time
-
-    predictions = np.array(
-        [
-            predict(
-                sample_features,
-                hidden_weights,
-                hidden_bias,
-                output_weights,
-                output_bias,
-            )
-            for sample_features in features_test
-        ]
-    )
-
-    predicted_labels = np.where(predictions >= 0, 1.0, -1.0)
-
-    num_correct = int(np.sum(predicted_labels == targets_test))
-    accuracy_percent = num_correct / len(targets_test) * 100
-
-    print(f"Learning rate: {learning_rate}")
-    print(f"Epochs: {num_epochs}")
-    print(f"Training time: {training_time:.4f} seconds")
-    print(f"Initial average loss: {loss_history[0]:.6f}")
-    print(f"Final average loss: {loss_history[-1]:.6f}")
-    print(f"Correct predictions: {num_correct} / {len(targets_test)}")
-    print(f"Classification accuracy: {accuracy_percent:.2f}%")
-
-    plt.plot(range(1, num_epochs + 1), loss_history)
-    plt.xlabel("Epochs")
-    plt.ylabel("Average Loss")
-    plt.title(f"MLP training loss (learning rate = {learning_rate})")
-    plt.grid()
-    plt.show()
-
-
-if __name__ == "__main__":
-    main()
